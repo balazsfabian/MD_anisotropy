@@ -55,9 +55,11 @@ def create_diatom(x, l, theta):
     s = np.sin(theta)
     dx  = np.array([c, s]) * l
 
-    pos = np.zeros((2,3))
+    pos = np.zeros((3,3))
     pos[0,0:2] = x + dx
     pos[1,0:2] = x - dx
+    pos[2,0:2] = x
+    pos[2,2]   = 1.0     # elevation of the COM
     return pos
 
 # Parameters of the trajectory
@@ -69,17 +71,17 @@ length  =       1  # length of the particle in angstroms
 l_box   =     100  # box dimensions in angstrom
 
 # Create MDA Universe from scratch:
-atoms    = 2
+atoms    = 3
 residues = 1
 u = mda.Universe.empty(atoms,
                        residues,
-                       atom_resindex=[0, 0],
+                       atom_resindex=[0, 0, 0],
                        trajectory=True)
 
 u.add_TopologyAttr('names')
 u.add_TopologyAttr('resids')
 u.add_TopologyAttr('resnames')
-u.atoms.names = ['C','C']
+u.atoms.names = ['C1','C2','N']
 u.residues.resids = "1"
 u.residues.resnames = "ANI"
 coordinates = np.empty((n_steps, u.atoms.n_atoms,3))
