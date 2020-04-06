@@ -13,7 +13,9 @@ import sys
 
 
 def Mt (theta, eta):
-    """ Matrix determining the orientation of displacements
+    """ Matrix determining the orientation of displacements.
+        When applied to [Dx, Dy].T, it produces displacements
+        that have the same norm as [Dx, Dy].T
         theta : orientation in radians
         eta   : anisotropy
     """
@@ -23,7 +25,7 @@ def Mt (theta, eta):
 
     M = np.sqrt(1+eta) * mat + np.sqrt(1-eta)*(np.eye(2)-mat) 
 
-    return np.sqrt(2)*M
+    return M
 
 
 def update_step(x,a, eta, x_size=1.0, x_center = 0.0, a_size=1.0, a_center= 0.0):
@@ -77,14 +79,14 @@ u = mda.Universe.empty(atoms,
 u.add_TopologyAttr('names')
 u.add_TopologyAttr('resids')
 u.add_TopologyAttr('resnames')
-u.atoms.names = ['AT1','AT2']
+u.atoms.names = ['C','C']
 u.residues.resids = "1"
 u.residues.resnames = "ANI"
 coordinates = np.empty((n_steps, u.atoms.n_atoms,3))
 
 
 # Generate trajectory
-for i in range(len(coordinates)-1):
+for i in tqdm(range(len(coordinates))):
 
     # create the positions of a diatomic molecule
     # with given length and store them
