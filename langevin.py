@@ -3,6 +3,7 @@ import MDAnalysis as mda
 from tqdm import tqdm
 import sys
 
+# np.random.seed(seed=0)
 ##################################
 # SIMULATING THE LANGEVIN EQUATION
 #    FOR ANISOTROPIC PARTICLES
@@ -19,7 +20,6 @@ def Mt (theta, eta):
         theta : orientation in radians
         eta   : anisotropy
     """
-    #TODO: check the normalization of this matrix for various eta
     ut = np.array([np.cos(theta), np.sin(theta)])
     mat = np.outer(ut,ut)
 
@@ -33,9 +33,9 @@ def update_step(x,a, eta, x_size=1.0, x_center = 0.0, a_size=1.0, a_center= 0.0)
     """
 
     # Generating the random variables
-    W = np.random.normal()
+    W = np.random.normal(scale=a_size)
     W = np.radians(W)
-    B = np.random.normal(0,1,2)
+    B = np.random.normal(scale=x_size,size=2)
 
     # Updating postions and angle
     # Note: this way, Mt is not stored and
