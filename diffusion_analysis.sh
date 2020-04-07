@@ -9,12 +9,15 @@ set -euxo pipefail
 # echo "0" | gmx rotmat -f aniso.xtc -s aniso.gro
 # python rotdiff.py rotmat.xvg msd_angle.dat
   
-i="" 
-for j in {1..2}
+# Translation
+for i in {1..5}
 do
-    python langevin.py sig-"$i"-rep-"$j".xtc
-    echo "0" | gmx rotmat -f sig-"$i"-rep-"$j".xtc -s aniso.gro
-    python rotdiff.py rotmat.xvg msd-"$i"-rep-"$j".dat
+    # Rotation
+    for j in {1..5}
+    do
+        python langevin.py trans-$i-rot-0.$j.xtc $i 0.$j
+        echo "0" | gmx msd -xvg none -f trans-$i-rot-0.$j.xtc -s aniso.gro -lateral z -o msdt_trans-$i-rot-0.$j.xvg
+        echo "0" | gmx rotmat -f trans-$i-rot-0.$j.xtc -s aniso.gro
+        python rotdiff.py rotmat.xvg msdr-$i-rot-0.$j.dat
+    done
 done
-
-

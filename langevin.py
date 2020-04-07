@@ -28,7 +28,7 @@ def Mt (theta, eta):
     return M
 
 
-def update_step(x,a, eta, x_var=1.0, a_var=1.0):
+def update_step(x,a, eta, x_var=1.0, a_var=0.1):
     """ Update anisotropic Langevin position and angle
         x_var : variance of the step distribution
         y_var : variance of the angle distribution
@@ -65,8 +65,20 @@ def create_diatom(x, l, theta):
     return pos
 
 # Parameters of the trajectory
+#   On diffusion coefficients:
+#  * MSD_rot   = a_var * t = 2D * t
+#  * MSD_trans = 2 * x_var * t = 4D * t
+#   Moreover, gmx output is in nm^2
+#   instead of angstrom^2
+#  WARNING: setting a_var too large
+#   results in undersampling of the
+#   rotational motion and it causes
+#   the underestimation of MSD_rot.
+#   (e.g.: 2pi => 0)
+#
 eta     =       0  # degree of anisotropy
-a_var   =     0.1  # variance of the angle distribution (in radians),
+x_var   =       1  # variance of the step distribution (in angstrom^2)
+a_var   =     0.1  # variance of the angle distribution (in radian^2),
                    # a_var = \sigma_{angle}^2 = 2D
 n_steps =  100000  # steps
 angle   =       0  # initial angle in radians
@@ -100,7 +112,7 @@ for i in tqdm(range(len(coordinates))):
     coordinates[i] = pos
 
     # update the positions
-    com, angle = update_step(com, angle, eta, a_var = a_var)
+    com, angle = update_step(com, angle, eta, x_var=float(sys.argv[2]), a_var=float(sys.argv[3]))
 
 # load the coordinates into the universe
 # and write them in a GRO and XTC format
