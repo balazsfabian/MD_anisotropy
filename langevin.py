@@ -28,20 +28,22 @@ def Mt (theta, eta):
     return M
 
 
-def update_step(x,a, eta, x_size=1.0, x_center = 0.0, a_size=1.0, a_center= 0.0):
+def update_step(x,a, eta, x_var=1.0, a_var=1.0):
     """ Update anisotropic Langevin position and angle
+        x_var : variance of the step distribution
+        y_var : variance of the angle distribution
     """
 
     # Generating the random variables
-    W = np.random.normal(scale=a_size)
-    W = np.radians(W)
-    B = np.random.normal(scale=x_size,size=2)
+    # with given variances
+    W = np.random.normal(scale=np.sqrt(a_var))
+    B = np.random.normal(scale=np.sqrt(x_var),size=2)
 
     # Updating postions and angle
     # Note: this way, Mt is not stored and
     # needs to be recalculated at every step.
     M_old = Mt(a, eta)
-    a_new = a + np.sqrt(2)*W
+    a_new = a + W
     M_new = Mt(a_new, eta)
     x_new = x + 0.5 * np.dot(M_new + M_old,B)
 
@@ -64,6 +66,8 @@ def create_diatom(x, l, theta):
 
 # Parameters of the trajectory
 eta     =       0  # degree of anisotropy
+a_var   =     0.1  # variance of the angle distribution (in radians),
+                   # a_var = \sigma_{angle}^2 = 2D
 n_steps =  100000  # steps
 angle   =       0  # initial angle in radians
 com     = [0.,0.]  # initial position
@@ -96,14 +100,14 @@ for i in tqdm(range(len(coordinates))):
     coordinates[i] = pos
 
     # update the positions
-    com, angle = update_step(com, angle, eta)
+    com, angle = update_step(com, angle, eta, a_var = a_var)
 
 # load the coordinates into the universe
 # and write them in a GRO and XTC format
 u.load_new(coordinates, order='fac')
 u.dimensions = np.array([l_box,l_box, l_box, 90, 90, 90])
 u.atoms.write('aniso.gro')
-with mda.Writer("aniso.xtc", u.atoms.n_atoms) as W:
+with mda.Writer(sys.argv[1], u.atoms.n_atoms) as W:
     for ts in u.trajectory:
         u.dimensions = np.array([l_box,l_box, l_box, 90, 90, 90])
         W.write(u.atoms)
