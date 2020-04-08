@@ -58,7 +58,7 @@ def TDT(pos, ori, max_dt=400):
 # load the universe, trajectory and
 # create a new auxiliary attribute
 # containing the rotational data
-u = mda.Universe('aniso.gro', 'trans-1-rot-0.1.xtc')
+u = mda.Universe('aniso.gro', 'trans-2-rot-0.1.xtc')
 u.trajectory.add_auxiliary('orientation', 'rotmat.xvg')
 
 # array for positions and orientations

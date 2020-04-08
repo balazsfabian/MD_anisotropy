@@ -76,12 +76,12 @@ def create_diatom(x, l, theta):
 #   the underestimation of MSD_rot.
 #   (e.g.: 2pi => 0)
 #
-eta     =       0  # degree of anisotropy
-x_var   =       1  # variance of the step distribution (in angstrom^2)
-a_var   =     0.1  # variance of the angle distribution (in radian^2),
+eta     =       0.5  # degree of anisotropy
+x_var   =       10  # variance of the step distribution (in angstrom^2)
+a_var   =     0.01  # variance of the angle distribution (in radian^2),
                    # a_var = \sigma_{angle}^2 = 2D
 n_steps =  100000  # steps
-angle   =       0  # initial angle in radians
+angle   =  np.pi/4  # initial angle in radians
 com     = [0.,0.]  # initial position
 length  =       1  # length of the particle in angstroms
 l_box   =     100  # box dimensions in angstrom
