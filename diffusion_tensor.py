@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.spatial.transform import Rotation as R
 import MDAnalysis as mda
-
+from tqdm import tqdm
 
 
 def TDT(pos, ori, max_dt=400):
@@ -24,7 +24,7 @@ def TDT(pos, ori, max_dt=400):
     norm   = np.zeros((max_dt,2,2))
 
     # initial time t0 of the average
-    for t0 in range(l_traj-1):
+    for t0 in tqdm(range(l_traj-1)):
 
         # determine the maximum length
         # of trajectory from t0 onward
@@ -36,7 +36,6 @@ def TDT(pos, ori, max_dt=400):
         rot  = ori[t0]
  
         for dt in range(1, max_dt):
-            print (t0,dt+t0)
 
             # rotate the displacement into
             # the reference orientation
@@ -66,9 +65,10 @@ u.trajectory.add_auxiliary('orientation', 'rotmat.xvg')
 frames = u.trajectory.n_frames
 pos = np.zeros((frames,3))
 ori = np.zeros((frames,3,3))
+dt  = u.trajectory.dt
 
 # collect the relevant data from the trajectory
-for i,ts in enumerate(u.trajectory[:500]):
+for i,ts in enumerate(u.trajectory):
 
     # load the center of mass of the particle 
     # into an array. For this to work, the
@@ -87,4 +87,16 @@ for i,ts in enumerate(u.trajectory[:500]):
 # calculate the time-dependent diffusion tensor
 # at a fixed given orientation. This orientation
 # is the one specified by the rotmat.xvg
-output = TDT(pos[:500], ori[:500], max_dt=400)
+# Then, reshae the array and save it
+MSD_ij = TDT(pos, ori, max_dt=400)
+MSD_ij = MSD_ij.reshape((len(MSD_ij),4))
+
+# set up the lagtime array, reshape it and
+# attach it as a first column to the data
+l_data  = len(MSD_ij)
+lagtime = np.linspace(0, l_data-1, l_data) * dt
+lagtime = lagtime.reshape((len(lagtime),1))
+result  = np.hstack((lagtime,MSD_ij))
+
+# write the final array
+np.savetxt('MSD_ij.dat', result, header = "time(ps) MSD_xx(angstrom^2) MSD_xy(angstrom^2) MSD_yx(angstrom^2) MDS_yy(angstrom^2)")
