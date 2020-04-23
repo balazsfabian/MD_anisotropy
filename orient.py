@@ -6,7 +6,7 @@ from scipy.spatial.transform import Rotation as R
 # calculated at a fixed angle.
 # Assign time and diffusion tensor
 # to variables.
-raw_data = np.loadtxt('MSD_ij.dat')
+raw_data = np.loadtxt(sys.argv[1])
 time = raw_data[:,0]
 MSD_ij = raw_data[:,1:]
 
@@ -48,4 +48,4 @@ for i,elem in enumerate(a):
 angle[:,0] = np.unwrap(angle[:,0]*2)/2
 angle[:,1] = np.unwrap(angle[:,1]*2)/2
  
-np.savetxt("MSD_ij.DIAG.dat", np.vstack((time.T, a.T,angle.T)).T, header = "time(ps) MSD_maj(angstrom^2) MSD_min(angstrom^2) angle_maj(rad^2) angle_min(rad^2)")
+np.savetxt(sys.argv[2], np.vstack((time.T, a.T,angle.T)).T, header = "time(ps) MSD_maj(angstrom^2) MSD_min(angstrom^2) angle_maj(rad) angle_min(rad)")
