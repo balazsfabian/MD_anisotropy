@@ -1,3 +1,4 @@
+import sys
 import numpy as np
 from scipy.spatial.transform import Rotation as R
 import MDAnalysis as mda
@@ -58,14 +59,16 @@ def TDT(pos, ori, max_dt=400):
 # load the universe, trajectory and
 # create a new auxiliary attribute
 # containing the rotational data
-u = mda.Universe('aniso.gro', 'trans-2-rot-0.1.xtc')
-u.trajectory.add_auxiliary('orientation', 'rotmat.xvg')
+u = mda.Universe(sys.argv[1], sys.argv[2])
+u.trajectory.add_auxiliary('orientation', sys.argv[3])
 
 # array for positions and orientations
 frames = u.trajectory.n_frames
 pos = np.zeros((frames,3))
 ori = np.zeros((frames,3,3))
 dt  = u.trajectory.dt
+sel = u.select_atoms('resname Ar4 or resname ANI')
+print (sel)
 
 # collect the relevant data from the trajectory
 for i,ts in enumerate(u.trajectory):
@@ -74,7 +77,8 @@ for i,ts in enumerate(u.trajectory):
     # into an array. For this to work, the
     # trajectory must only contain the particle
     # or its center of mass
-    pos[i] = u.atoms.center_of_mass()
+    pos[i] = sel.center_of_geometry()
+#   pos[i] = sel[0].position
 
     # load the rotation matrix as a row vector
     # and reshape it into a 3D rotation matrix.
@@ -88,7 +92,7 @@ for i,ts in enumerate(u.trajectory):
 # at a fixed given orientation. This orientation
 # is the one specified by the rotmat.xvg
 # Then, reshae the array and save it
-MSD_ij = TDT(pos, ori, max_dt=400)
+MSD_ij = TDT(pos, ori, max_dt=10000)
 MSD_ij = MSD_ij.reshape((len(MSD_ij),4))
 
 # set up the lagtime array, reshape it and
@@ -99,4 +103,4 @@ lagtime = lagtime.reshape((len(lagtime),1))
 result  = np.hstack((lagtime,MSD_ij))
 
 # write the final array
-np.savetxt('MSD_ij.dat', result, header = "time(ps) MSD_xx(angstrom^2) MSD_xy(angstrom^2) MSD_yx(angstrom^2) MDS_yy(angstrom^2)")
+np.savetxt(sys.argv[4], result, header = "time(ps) MSD_xx(angstrom^2) MSD_xy(angstrom^2) MSD_yx(angstrom^2) MDS_yy(angstrom^2)")
