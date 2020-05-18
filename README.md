@@ -1,16 +1,14 @@
-# MD Anisotropy
+# MD Anistropy
 
 MD Anisotropy is a collection of Python tools for
 determining anistropic diffusion in Molecular Dynamics.
-
 
 ## Installation
 
 In its current form, there is no need to install the package.
 It consist of standalone scripts that can be executed in a workflow.
 
-
-## Usage
+## Usage
 
 To determine the anisotropy of a simulated particle, the following
 steps must be made:
