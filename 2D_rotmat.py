@@ -42,12 +42,15 @@ def vecs2angle(vector_1,vector_2):
     return angle
 
 
-u = mda.Universe(sys.argv[1], sys.argv[2])
-sel = u.select_atoms('resname ANI')
 # Fixed reference
+u_ref = mda.Universe(sys.argv[1])
+sel = u_ref.select_atoms('name MAr1')
 ref_pos = sel.positions
 ref_vec = ref_pos[1] - ref_pos[0]
-#ref_vec = [1,0]
+
+# Trajectory
+u = mda.Universe(sys.argv[1], sys.argv[2])
+sel = u.select_atoms('name MAr1')
 
 # Array for results
 n_frames = u.trajectory.n_frames
