@@ -20,25 +20,26 @@ MSD_ij = MSD_ij.reshape((len(MSD_ij),2,2))
 # the laboratory frame's X, the minor with the Y. The eigenvalues are in "a". The rotation
 # matrix needed to accomplish this is contained in the eigenvector matrix.
 a,b = np.linalg.eig(MSD_ij)
-angle = np.zeros(a.shape)
+
+# sort the MSD-s (that is, the eigenvalues)
+# and the corresponding vectors
+for i,elem in enumerate(a):
+    idx = elem.argsort()[::-1]
+    a[i] = a[i][idx]
+    b[i] = b[i][:,idx]
+
 
 # at every step (lagtime), calculate the angle from
 # the eigenvector associated with the major/minor axes.
+angle = np.zeros(a.shape)
 for i,elem in enumerate(b):
 
     # w is the array of eigenvectors
     # w[:,i] is the eigenvector of a[i]
     w = b[i]
     for j in range(2):
-        angle[i,j] =  np.arctan2(w[0,j], w[1,j])
+        angle[i,j] =  np.arctan2(w[1,j], w[0,j])
 
-# sort the MSD-s (that is, the eigenvalues)
-# and the corresponding angles
-# import pdb; pdb.set_trace()
-for i,elem in enumerate(a):
-    idx = elem.argsort()[::-1]
-    a[i] = a[i][idx]
-    angle[i] = angle[i][idx]
 
 # Unwrap the angles to be continuous.
 # unwrap works in 180 degree complements,
